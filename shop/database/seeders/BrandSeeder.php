@@ -20,8 +20,28 @@ class BrandSeeder extends Seeder
         ]);
 
         Brand::create([
+            'name' => 'Lenovo',
+            'slug' => 'lenovo'
+        ]);
+
+        Brand::create([
             'name' => 'Xiaomi',
             'slug' => 'xiaomi'
+        ]);
+
+        Brand::create([
+            'name' => 'LG',
+            'slug' => 'lg'
+        ]);
+
+        Brand::create([
+            'name' => 'Logitech',
+            'slug' => 'logitech'
+        ]);
+
+        Brand::create([
+            'name' => 'Bosch',
+            'slug' => 'bosch'
         ]);
     }
 }
