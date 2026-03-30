@@ -10,7 +10,6 @@ class OrderController extends Controller
 {
     public function index()
     {
-        // Показываем заказы только текущего пользователя
         $orders = Order::where('user_id', Auth::id())
             ->latest()
             ->paginate(10);

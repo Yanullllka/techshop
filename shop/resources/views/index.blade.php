@@ -13,7 +13,6 @@
     </style>
 </head>
 <body class="bg-gradient-to-br from-purple-50 to-pink-50">
-    <!-- Навигация (такая же как в каталоге) -->
     <nav class="bg-white/80 backdrop-blur-sm shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
@@ -28,6 +27,9 @@
                     <a href="/products" class="text-gray-700 hover:text-purple-600 transition">Каталог</a>
                     <a href="/categories" class="text-gray-700 hover:text-purple-600 transition">Категории</a>
                     <a href="/orders" class="text-gray-700 hover:text-purple-600 transition">Заказы</a>
+                    <a href="/profile" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition font-medium">
+                        Профиль
+                    </a>
                 </div>
                 
                 <div class="flex items-center space-x-4">
@@ -56,7 +58,6 @@
     </nav>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Hero Banner -->
         <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl p-8 md:p-12 mb-12 text-white">
             <div class="max-w-2xl">
                 <h1 class="text-4xl md:text-5xl font-bold mb-4">Новинки техники 2024</h1>
@@ -67,7 +68,6 @@
             </div>
         </div>
 
-        <!-- Новинки -->
         <div class="mb-12">
             <h2 class="text-2xl md:text-3xl font-bold mb-6 flex items-center">
                 <span class="bg-gradient-to-r from-purple-600 to-pink-600 w-1 h-8 rounded-full mr-3"></span>
@@ -89,7 +89,7 @@
                             </h3>
                             <p class="text-gray-500 text-sm mb-3">{{ Str::limit($product->description ?? 'Описание товара', 50) }}</p>
                             <div class="flex justify-between items-center">
-                                <span class="text-2xl font-bold text-purple-600">{{ number_format($product->price, 0, '', ' ') }} ₽</span>
+                                <span class="text-2xl font-bold text-purple-600">{{ number_format($product->price, 0, '', ' ') }} $</span>
                                 <a href="/products/{{ $product->id }}" class="bg-purple-600 text-white p-2 rounded-lg hover:bg-purple-700 transition">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
@@ -106,7 +106,6 @@
             </div>
         </div>
 
-        <!-- Популярные товары -->
         @if($products->count() > 4)
         <div>
             <h2 class="text-2xl md:text-3xl font-bold mb-6 flex items-center">
@@ -129,7 +128,7 @@
                             </h3>
                             <p class="text-gray-500 text-sm mb-3">{{ Str::limit($product->description ?? 'Описание товара', 50) }}</p>
                             <div class="flex justify-between items-center">
-                                <span class="text-2xl font-bold text-purple-600">{{ number_format($product->price, 0, '', ' ') }} ₽</span>
+                                <span class="text-2xl font-bold text-purple-600">{{ number_format($product->price, 0, '', ' ') }} $</span>
                                 <a href="/products/{{ $product->id }}" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition text-sm">
                                     Купить
                                 </a>
@@ -142,7 +141,6 @@
         @endif
     </div>
 
-    <!-- Footer -->
     <footer class="bg-gray-900 text-white mt-20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -169,13 +167,13 @@
                 <div>
                     <h4 class="font-semibold mb-4">Контакты</h4>
                     <ul class="space-y-2 text-gray-400">
-                        <li> +7 (999) 123-45-67</li>
-                        <li> info@techshop.ru</li>
+                        <li> +375 (33) 340-90-73</li>
+                        <li> yana@gmail.com</li>
                     </ul>
                 </div>
             </div>
             <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; 2024 TechShop. Все права защищены.</p>
+                <p>&copy; 2026 TechShop. Все права защищены.</p>
             </div>
         </div>
     </footer>

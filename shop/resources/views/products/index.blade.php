@@ -13,7 +13,6 @@
     </style>
 </head>
 <body class="bg-gradient-to-br from-purple-50 to-pink-50">
-    <!-- Навигация -->
     <nav class="bg-white/80 backdrop-blur-sm shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
@@ -55,9 +54,7 @@
         </div>
     </nav>
 
-    <!-- Основной контент -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Заголовок -->
         <div class="mb-8">
             <h1 class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                 Каталог товаров
@@ -65,11 +62,10 @@
             <p class="text-gray-600 mt-2">Найдено товаров: {{ $products->total() }}</p>
         </div>
 
-        <!-- Сетка товаров 4 колонки -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             @forelse($products as $product)
                 <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden hover:scale-105">
-                    <!-- Изображение товара -->
+                   
                     <div class="relative h-48 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
                         <svg class="w-24 h-24 text-gray-400 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -81,7 +77,6 @@
                         @endif
                     </div>
                     
-                    <!-- Информация о товаре -->
                     <div class="p-4">
                         <div class="mb-2">
                             <span class="text-xs text-gray-500">{{ $product->brand->name ?? 'Без бренда' }}</span>
@@ -96,9 +91,9 @@
                         
                         <div class="flex items-center justify-between mt-4">
                             <div>
-                                <span class="text-2xl font-bold text-purple-600">{{ number_format($product->price, 0, '', ' ') }} ₽</span>
+                                <span class="text-2xl font-bold text-purple-600">{{ number_format($product->price, 0, '', ' ') }} $</span>
                                 @if($product->old_price)
-                                    <span class="text-xs text-gray-400 line-through ml-2">{{ number_format($product->old_price, 0, '', ' ') }} ₽</span>
+                                    <span class="text-xs text-gray-400 line-through ml-2">{{ number_format($product->old_price, 0, '', ' ') }} $</span>
                                 @endif
                             </div>
                             <a href="/products/{{ $product->id }}" 
@@ -117,13 +112,11 @@
             @endforelse
         </div>
 
-        <!-- Пагинация -->
         <div class="mt-8">
             {{ $products->links() }}
         </div>
     </div>
     <style>
-    /* Стили для пагинации */
     .pagination {
         display: flex;
         justify-content: center;

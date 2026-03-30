@@ -10,13 +10,11 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    // Показать форму входа
     public function showLogin()
     {
         return view('auth.login');
     }
 
-    // Обработка входа
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -34,13 +32,11 @@ class AuthController extends Controller
         ])->onlyInput('email');
     }
 
-    // Показать форму регистрации
     public function showRegister()
     {
         return view('auth.register');
     }
 
-    // Обработка регистрации
     public function register(Request $request)
     {
         $validated = $request->validate([
@@ -60,7 +56,6 @@ class AuthController extends Controller
         return redirect('/dashboard');
     }
 
-    // Выход из системы
     public function logout(Request $request)
     {
         Auth::logout();

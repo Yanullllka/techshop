@@ -10,27 +10,21 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    /**
-     * Поля, которые можно массово заполнять
-     */
+
     protected $fillable = [
         'name',
         'email',
         'password',
-        'role', // добавили роль
+        'role', 
     ];
 
-    /**
-     * Скрытые поля
-     */
+
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Преобразование типов
-     */
+
     protected function casts(): array
     {
         return [
@@ -38,20 +32,18 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    
 
-    // 🔹 Связь: пользователь имеет много заказов
     public function orders()
     {
         return $this->hasMany(Order::class);
     }
 
-    // 🔹 Связь: пользователь имеет много отзывов
     public function reviews()
     {
         return $this->hasMany(Review::class);
     }
 
-    // 🔹 Связь: пользователь имеет список избранного
     public function wishlists()
     {
         return $this->hasMany(Wishlist::class);

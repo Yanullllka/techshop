@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Pagination Styles */
 .pagination {
     @apply flex justify-center space-x-2;
 }

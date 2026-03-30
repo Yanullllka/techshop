@@ -12,7 +12,7 @@
 
                 <div>
                     <p class="font-bold">Заказ #{{ $order->id }}</p>
-                    <p class="text-gray-600">Сумма: {{ $order->total_price }} ₽</p>
+                    <p class="text-gray-600">Сумма: {{ $order->total_price }} $</p>
                 </div>
 
                 <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full">
