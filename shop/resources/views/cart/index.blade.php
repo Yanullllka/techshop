@@ -203,7 +203,7 @@
         if (checkoutBtn) {
             checkoutBtn.addEventListener('click', function() {
                 const originalText = this.innerHTML;
-                this.innerHTML = '⏳ Оформление...';
+                this.innerHTML = 'Оформление...';
                 this.disabled = true;
                 
                 fetch('/cart/checkout', {
