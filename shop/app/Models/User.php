@@ -10,42 +10,40 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-
     protected $fillable = [
         'name',
         'email',
         'password',
-        'role', 
+        'phone',
+        'address',
+        'avatar',
     ];
-
 
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
     
-
+    // Связь с заказами
     public function orders()
     {
         return $this->hasMany(Order::class);
     }
-
-    public function reviews()
-    {
-        return $this->hasMany(Review::class);
-    }
-
+    
+    // Связь с избранным
     public function wishlists()
     {
         return $this->hasMany(Wishlist::class);
+    }
+    
+    // Связь с избранными товарами
+    public function favoriteProducts()
+    {
+        return $this->belongsToMany(Product::class, 'wishlists', 'user_id', 'product_id')
+                    ->withTimestamps();
     }
 }

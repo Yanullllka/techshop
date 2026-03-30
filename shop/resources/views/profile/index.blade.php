@@ -17,7 +17,6 @@
                 </a>
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="/products" class="text-gray-700 hover:text-purple-600 transition">Каталог</a>
-                    <a href="/categories" class="text-gray-700 hover:text-purple-600 transition">Категории</a>
                     <a href="/orders" class="text-gray-700 hover:text-purple-600 transition">Заказы</a>
                     <a href="/profile" class="text-purple-600 font-semibold">Личный кабинет</a>
                 </div>
