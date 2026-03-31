@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -28,10 +30,8 @@ class CartController extends Controller
         return $cart->load('items.product');
     }
 
-    // Добавить в корзину
     public function add(Request $request)
     {
-        // Проверка авторизации
         if (!Auth::check()) {
             return response()->json([
                 'success' => false,
@@ -79,14 +79,12 @@ class CartController extends Controller
         }
     }
 
-    // Показать корзину
     public function index()
     {
         $cart = $this->getCart();
         return view('cart.index', compact('cart'));
     }
 
-    // Обновить количество
     public function update(Request $request, $itemId)
     {
         $request->validate([
@@ -100,7 +98,6 @@ class CartController extends Controller
         return redirect()->back()->with('success', 'Корзина обновлена');
     }
 
-    // Удалить товар
     public function remove($itemId)
     {
         $cartItem = CartItem::findOrFail($itemId);
@@ -109,7 +106,6 @@ class CartController extends Controller
         return redirect()->back()->with('success', 'Товар удален из корзины');
     }
 
-    // Очистить корзину
     public function clear()
     {
         $cart = $this->getCart();
@@ -118,10 +114,8 @@ class CartController extends Controller
         return redirect()->back()->with('success', 'Корзина очищена');
     }
     
-    // Оформить заказ
     public function checkout(Request $request)
     {
-        // Проверка авторизации
         if (!Auth::check()) {
             return response()->json([
                 'success' => false,
@@ -139,11 +133,28 @@ class CartController extends Controller
                 ]);
             }
 
+            $order = Order::create([
+                'user_id' => Auth::id(),
+                'total_price' => $cart->total,
+                'status' => 'new',
+                'address' => Auth::user()->address ?? 'Не указан',
+                'payment_method' => 'cash_on_delivery'
+            ]);
+
+            foreach ($cart->items as $item) {
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $item->product_id,
+                    'quantity' => $item->quantity,
+                    'price' => $item->price
+                ]);
+            }
+
             $cart->items()->delete();
             
             return response()->json([
                 'success' => true,
-                'message' => 'Ваш заказ передан в доставку! Менеджер свяжется с вами.'
+                'message' => 'Ваш заказ передан в доставку. Менеджер свяжется с вами.'
             ]);
             
         } catch (\Exception $e) {

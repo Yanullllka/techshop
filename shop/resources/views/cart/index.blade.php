@@ -33,8 +33,8 @@
                 </a>
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="/products" class="text-gray-700 hover:text-purple-600 transition">Каталог</a>
-                    <a href="/categories" class="text-gray-700 hover:text-purple-600 transition">Категории</a>
                     <a href="/orders" class="text-gray-700 hover:text-purple-600 transition">Заказы</a>
+                    <a href="/wishlist" class="text-gray-700 hover:text-purple-600 transition">Избранное</a>
                     <a href="/profile" class="text-purple-600 font-semibold">Личный кабинет</a>
                 </div>
                 <div class="flex items-center space-x-4">
@@ -114,7 +114,6 @@
             </div>
         @else
             <div class="bg-white rounded-2xl shadow-xl p-12 text-center">
-                <div class="text-6xl mb-4">🛒</div>
                 <h2 class="text-2xl font-bold text-gray-800 mb-2">Корзина пуста</h2>
                 <p class="text-gray-600 mb-6">Добавьте товары в корзину, чтобы продолжить покупки</p>
                 <a href="/products" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg hover:shadow-lg transition">Перейти в каталог</a>
@@ -130,8 +129,8 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
                 </div>
-                <h3 class="text-2xl font-bold text-gray-800 mb-2">Заказ оформлен!</h3>
-                <p class="text-gray-600 mb-4" id="modal-message">Ваш заказ передан в доставку! Менеджер свяжется с вами в ближайшее время.</p>
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">Заказ оформлен</h3>
+                <p class="text-gray-600 mb-4" id="modal-message">Ваш заказ передан в доставку. Менеджер свяжется с вами.</p>
                 <div class="flex gap-3 mt-6">
                     <button id="close-modal" class="flex-1 bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition">
                         Продолжить покупки
@@ -147,6 +146,7 @@
     <script>
         const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
         
+        // Обновление количества
         document.querySelectorAll('.update-qty').forEach(btn => {
             btn.addEventListener('click', function() {
                 const itemId = this.dataset.id;
@@ -168,6 +168,7 @@
             });
         });
         
+        // Удаление товара
         document.querySelectorAll('.remove-item').forEach(btn => {
             btn.addEventListener('click', function() {
                 const itemId = this.dataset.id;
@@ -182,6 +183,7 @@
             });
         });
         
+        // Очистка корзины
         const clearCartBtn = document.getElementById('clear-cart');
         if (clearCartBtn) {
             clearCartBtn.addEventListener('click', function() {
@@ -196,6 +198,7 @@
             });
         }
         
+        // Оформление заказа
         const checkoutBtn = document.getElementById('checkout-btn');
         const modal = document.getElementById('checkout-modal');
         const closeModal = document.getElementById('close-modal');
@@ -217,7 +220,9 @@
                 })
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error('Ошибка сервера: ' + response.status);
+                        return response.json().then(err => {
+                            throw new Error(err.message || 'Ошибка сервера');
+                        });
                     }
                     return response.json();
                 })
@@ -247,6 +252,7 @@
             });
         }
         
+        // Закрытие модального окна
         if (closeModal) {
             closeModal.addEventListener('click', function() {
                 modal.classList.add('hidden');
@@ -264,80 +270,6 @@
                 }
             });
         }
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-    
-    function checkAuth() {
-        return new Promise((resolve) => {
-            fetch('/check-auth')
-                .then(response => response.json())
-                .then(data => resolve(data.authenticated))
-                .catch(() => resolve(false));
-        });
-    }
-    
-    function redirectToLogin() {
-        window.location.href = '/login';
-    }
-    
-    // Оформление заказа с проверкой авторизации
-    const checkoutBtn = document.getElementById('checkout-btn');
-    if (checkoutBtn) {
-        checkoutBtn.addEventListener('click', async function() {
-            // Проверяем авторизацию
-            const isAuth = await checkAuth();
-            if (!isAuth) {
-                showNotification('Для оформления заказа нужно войти в аккаунт', 'error');
-                setTimeout(() => redirectToLogin(), 2000);
-                return;
-            }
-            
-            const originalText = this.innerHTML;
-            this.innerHTML = '⏳ Оформление...';
-            this.disabled = true;
-            
-            fetch('/cart/checkout', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({})
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const modalMessage = document.getElementById('modal-message');
-                    modalMessage.textContent = data.message;
-                    modal.classList.remove('hidden');
-                    modal.classList.add('flex');
-                    
-                    const cartCount = document.getElementById('cart-count');
-                    if (cartCount) cartCount.textContent = '0';
-                } else {
-                    alert(data.message || 'Ошибка при оформлении заказа');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Ошибка при оформлении заказа');
-            })
-            .finally(() => {
-                this.innerHTML = originalText;
-                this.disabled = false;
-            });
-        });
-    }
-    
-    function showNotification(message, type) {
-        const notification = document.createElement('div');
-        notification.className = `fixed top-20 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white ${
-            type === 'success' ? 'bg-green-500' : 'bg-red-500'
-        }`;
-        notification.textContent = message;
-        document.body.appendChild(notification);
-        setTimeout(() => notification.remove(), 3000);
-    }
     </script>
 </body>
 </html>

@@ -17,6 +17,7 @@ Route::middleware('auth')->group(function () {
     
 });
 
+
 Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::put('/cart/update/{itemId}', [CartController::class, 'update'])->name('cart.update');
