@@ -18,6 +18,7 @@
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="/products" class="text-gray-700 hover:text-purple-600 transition">Каталог</a>
                     <a href="/orders" class="text-gray-700 hover:text-purple-600 transition">Заказы</a>
+                    <a href="/wishlist" class="text-gray-700 hover:text-purple-600 transition">Избранное</a>
                     <a href="/profile" class="text-purple-600 font-semibold">Личный кабинет</a>
                 </div>
                 <div class="flex items-center space-x-4">
@@ -27,20 +28,23 @@
                         </svg>
                         <span id="cart-count" class="absolute -top-2 -right-2 bg-purple-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
                     </a>
-                    <div class="flex items-center space-x-3">
-                        <div class="flex items-center space-x-2">
-                            <div class="w-8 h-8 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center text-white font-bold">
-                                {{ substr(Auth::user()->name, 0, 1) }}
+                    @guest
+                        <a href="/login" class="text-gray-700 hover:text-purple-600 transition">Вход</a>
+                        <a href="/register" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg">Регистрация</a>
+                    @else
+                        <div class="flex items-center space-x-3">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-8 h-8 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center text-white font-bold">
+                                    {{ substr(Auth::user()->name, 0, 1) }}
+                                </div>
+                                <span class="text-gray-700">{{ Auth::user()->name }}</span>
                             </div>
-                            <span class="text-gray-700">{{ Auth::user()->name }}</span>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="bg-red-500 text-white px-3 py-1.5 rounded-lg hover:bg-red-600 transition text-sm">Выйти</button>
+                            </form>
                         </div>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="bg-red-500 text-white px-3 py-1.5 rounded-lg hover:bg-red-600 transition text-sm">
-                                Выйти
-                            </button>
-                        </form>
-                    </div>
+                    @endguest
                 </div>
             </div>
         </div>
@@ -52,7 +56,7 @@
                 {{ session('success') }}
             </div>
         @endif
-        
+
         <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl p-8 mb-8 text-white">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-4">
@@ -68,15 +72,13 @@
                         <p class="text-white/80 mt-1">{{ $user->email }}</p>
                     </div>
                 </div>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="bg-white text-purple-600 px-4 py-2 rounded-lg font-semibold hover:shadow-lg transition">
-                        Выйти из аккаунта
-                    </button>
-                </form>
+                <!-- ССЫЛКА НА КАТАЛОГ -->
+                <a href="/products" class="bg-white text-purple-600 px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition">
+                    Перейти в каталог
+                </a>
             </div>
         </div>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div class="bg-white rounded-xl shadow-lg p-6">
                 <div class="flex items-center justify-between">
@@ -103,7 +105,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="md:col-span-1">
                 <div class="bg-white rounded-xl shadow-lg overflow-hidden">
@@ -130,13 +132,13 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="md:col-span-2">
                 <div class="bg-white rounded-xl shadow-lg p-6">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="font-bold text-xl">Информация о пользователе</h3>
                         <a href="{{ route('profile.edit') }}" class="text-purple-600 hover:text-purple-700 text-sm">
-                            Редактировать →
+                            Редактировать
                         </a>
                     </div>
                     <div class="space-y-4">

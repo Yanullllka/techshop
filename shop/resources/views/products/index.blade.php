@@ -69,7 +69,7 @@
                     <a href="/products" class="text-purple-600 font-semibold">Каталог</a>
                     <a href="/orders" class="text-gray-700 hover:text-purple-600 transition">Заказы</a>
                     <a href="/wishlist" class="text-gray-700 hover:text-purple-600 transition">Избранное</a>
-                    <a href="/profile" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition"> Профиль</a>
+                    <a href="/profile" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition">Профиль</a>
                 </div>
                 <div class="flex items-center space-x-4">
                     <a href="/cart" class="relative">
@@ -186,10 +186,15 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 @foreach($products as $product)
                     <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden hover:scale-105 relative">
-                        <!-- Кнопка избранного -->
-                        <button class="add-to-favorite absolute top-2 left-2 bg-white p-2 rounded-full shadow hover:bg-red-50 transition z-10" data-id="{{ $product->id }}">
-                            ❤️
-                        </button>
+                        @auth
+                            <button class="add-to-favorite absolute top-2 left-2 bg-white p-2 rounded-full shadow hover:bg-red-50 transition z-10" data-id="{{ $product->id }}">
+                                ❤️
+                            </button>
+                        @else
+                            <a href="{{ route('login') }}" class="absolute top-2 left-2 bg-white p-2 rounded-full shadow hover:bg-red-50 transition z-10">
+                                ❤️
+                            </a>
+                        @endauth
                         
                         <div class="relative h-48 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
                             <svg class="w-24 h-24 text-gray-400 group-hover:scale-110 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -216,10 +221,17 @@
                                         <span class="text-xs text-gray-400 line-through ml-2">${{ number_format($product->old_price, 0, '', ' ') }}</span>
                                     @endif
                                 </div>
-                                <a href="/products/{{ $product->id }}" 
-                                   class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition">
-                                    Купить
-                                </a>
+                                @auth
+                                    <a href="/products/{{ $product->id }}" 
+                                       class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition">
+                                        Купить
+                                    </a>
+                                @else
+                                    <a href="{{ route('login') }}" 
+                                       class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition">
+                                        Войти
+                                    </a>
+                                @endauth
                             </div>
                         </div>
                     </div>
@@ -242,82 +254,74 @@
     </div>
 
     <script>
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-    const checkboxes = document.querySelectorAll('.brand-checkbox');
-    const selects = document.querySelectorAll('select');
-    const form = document.getElementById('filter-form');
-    
-    // Автоматическая отправка фильтров
-    if (form) {
-        checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', () => { form.submit(); });
-        });
-        selects.forEach(select => {
-            select.addEventListener('change', () => { form.submit(); });
-        });
-    }
-    
-    // Добавление в избранное
-    document.querySelectorAll('.add-to-favorite').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const productId = this.dataset.id;
-            const originalHTML = this.innerHTML;
-            this.innerHTML = '⏳';
-            this.disabled = true;
-            
-            fetch('/wishlist/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ product_id: productId })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Ошибка сервера: ' + response.status);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    this.innerHTML = '❤️';
-                    this.classList.add('bg-red-500', 'text-white');
-                    this.classList.remove('bg-white');
-                    showNotification(data.message, 'success');
-                } else {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+        const checkboxes = document.querySelectorAll('.brand-checkbox');
+        const selects = document.querySelectorAll('select');
+        const form = document.getElementById('filter-form');
+        
+        // Автоматическая отправка фильтров
+        if (form) {
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', () => { form.submit(); });
+            });
+            selects.forEach(select => {
+                select.addEventListener('change', () => { form.submit(); });
+            });
+        }
+        
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-20 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white ${
+                type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            }`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+        
+        // Добавление в избранное (только для авторизованных)
+        @auth
+        document.querySelectorAll('.add-to-favorite').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const productId = this.dataset.id;
+                const originalHTML = this.innerHTML;
+                this.innerHTML = '⏳';
+                this.disabled = true;
+                
+                fetch('/wishlist/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ product_id: productId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        this.innerHTML = '❤️';
+                        this.classList.add('bg-red-500', 'text-white');
+                        this.classList.remove('bg-white');
+                        showNotification(data.message, 'success');
+                    } else {
+                        this.innerHTML = originalHTML;
+                        showNotification(data.message || 'Ошибка', 'error');
+                    }
+                })
+                .catch(error => {
                     this.innerHTML = originalHTML;
-                    showNotification(data.message || 'Ошибка', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                this.innerHTML = originalHTML;
-                // Если товар добавился, но показало ошибку - всё равно показываем успех
-                showNotification('Товар добавлен в избранное', 'success');
-            })
-            .finally(() => {
-                this.disabled = false;
+                    showNotification('Ошибка при добавлении', 'error');
+                })
+                .finally(() => {
+                    this.disabled = false;
+                });
             });
         });
-    });
-    
-    function showNotification(message, type) {
-        const notification = document.createElement('div');
-        notification.className = `fixed top-20 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white ${
-            type === 'success' ? 'bg-green-500' : 'bg-red-500'
-        }`;
-        notification.textContent = message;
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.remove();
-        }, 3000);
-    }
-</script>
+        @endauth
+    </script>
 </body>
 </html>

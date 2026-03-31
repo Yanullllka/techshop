@@ -19,6 +19,14 @@ class WishlistController extends Controller
     // Добавить в избранное
     public function add(Request $request)
     {
+        // Проверка авторизации
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Для добавления в избранное необходимо авторизоваться'
+            ], 401);
+        }
+        
         try {
             $request->validate([
                 'product_id' => 'required|exists:products,id'
@@ -53,49 +61,36 @@ class WishlistController extends Controller
         }
     }
 
-   // Удалить из избранного
-public function remove($productId)
-{
-    try {
-        // Логируем полученный ID
-        \Log::info('Удаление из избранного', [
-            'product_id' => $productId,
-            'user_id' => Auth::id()
-        ]);
-        
-        $user = Auth::user();
-        
-        // Проверяем, есть ли такой товар в избранном
-        $exists = $user->favoriteProducts()->where('product_id', $productId)->exists();
-        \Log::info('Товар в избранном: ' . ($exists ? 'да' : 'нет'));
-        
-        if ($exists) {
-            $user->favoriteProducts()->detach($productId);
-            \Log::info('Товар удален');
+    // Удалить из избранного
+    public function remove($productId)
+    {
+        try {
+            $user = Auth::user();
             
-            return response()->json([
-                'success' => true,
-                'message' => 'Товар удален из избранного'
-            ]);
-        } else {
+            // Проверяем, есть ли такой товар в избранном
+            $exists = $user->favoriteProducts()->where('product_id', $productId)->exists();
+            
+            if ($exists) {
+                $user->favoriteProducts()->detach($productId);
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Товар удален из избранного'
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Товар не найден в избранном'
+                ]);
+            }
+            
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Товар не найден в избранном'
-            ]);
+                'message' => 'Ошибка: ' . $e->getMessage()
+            ], 500);
         }
-        
-    } catch (\Exception $e) {
-        \Log::error('Ошибка удаления из избранного', [
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
-        
-        return response()->json([
-            'success' => false,
-            'message' => 'Ошибка: ' . $e->getMessage()
-        ], 500);
     }
-}
 
     // Проверить, в избранном ли товар
     public function check($productId)

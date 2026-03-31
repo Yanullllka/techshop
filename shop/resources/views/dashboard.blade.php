@@ -1,8 +1,13 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-xl font-semibold text-purple-700">
-            Личный кабинет
-        </h2>
+        <div class="flex justify-between items-center">
+            <h2 class="text-xl font-semibold text-purple-700">
+                Личный кабинет
+            </h2>
+            <a href="/products" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition">
+                Перейти в каталог
+            </a>
+        </div>
     </x-slot>
 
     <div class="p-8">
@@ -20,13 +25,13 @@
                 <div class="bg-purple-50 rounded-lg p-6">
                     <h4 class="font-semibold text-lg mb-2">Профиль</h4>
                     <p class="text-gray-600 mb-4">Редактирование личных данных</p>
-                    <a href="/profile" class="text-purple-600 hover:text-purple-700">Перейти →</a>
+                    <a href="/profile/edit" class="text-purple-600 hover:text-purple-700">Перейти →</a>
                 </div>
                 
                 <div class="bg-purple-50 rounded-lg p-6">
                     <h4 class="font-semibold text-lg mb-2">Избранное</h4>
                     <p class="text-gray-600 mb-4">Список избранных товаров</p>
-                    <a href="/favorites" class="text-purple-600 hover:text-purple-700">Перейти →</a>
+                    <a href="/wishlist" class="text-purple-600 hover:text-purple-700">Перейти →</a>
                 </div>
             </div>
         </div>

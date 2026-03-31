@@ -7,8 +7,6 @@ use App\Models\CartItem;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class CartController extends Controller
 {
@@ -30,8 +28,17 @@ class CartController extends Controller
         return $cart->load('items.product');
     }
 
+    // Добавить в корзину
     public function add(Request $request)
     {
+        // Проверка авторизации
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Для добавления товара в корзину необходимо авторизоваться'
+            ], 401);
+        }
+        
         try {
             $request->validate([
                 'product_id' => 'required|exists:products,id',
@@ -72,12 +79,14 @@ class CartController extends Controller
         }
     }
 
+    // Показать корзину
     public function index()
     {
         $cart = $this->getCart();
         return view('cart.index', compact('cart'));
     }
 
+    // Обновить количество
     public function update(Request $request, $itemId)
     {
         $request->validate([
@@ -91,6 +100,7 @@ class CartController extends Controller
         return redirect()->back()->with('success', 'Корзина обновлена');
     }
 
+    // Удалить товар
     public function remove($itemId)
     {
         $cartItem = CartItem::findOrFail($itemId);
@@ -99,6 +109,7 @@ class CartController extends Controller
         return redirect()->back()->with('success', 'Товар удален из корзины');
     }
 
+    // Очистить корзину
     public function clear()
     {
         $cart = $this->getCart();
@@ -107,30 +118,39 @@ class CartController extends Controller
         return redirect()->back()->with('success', 'Корзина очищена');
     }
     
-   public function checkout(Request $request)
-{
-    try {
-        $cart = $this->getCart();
-        
-        if ($cart->items->count() == 0) {
+    // Оформить заказ
+    public function checkout(Request $request)
+    {
+        // Проверка авторизации
+        if (!Auth::check()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Корзина пуста'
-            ]);
+                'message' => 'Для оформления заказа необходимо авторизоваться'
+            ], 401);
         }
+        
+        try {
+            $cart = $this->getCart();
+            
+            if ($cart->items->count() == 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Корзина пуста'
+                ]);
+            }
 
-        $cart->items()->delete();
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Ваш заказ передан в доставку! Менеджер свяжется с вами.'
-        ]);
-        
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Ошибка при оформлении заказа: ' . $e->getMessage()
-        ], 500);
+            $cart->items()->delete();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Ваш заказ передан в доставку! Менеджер свяжется с вами.'
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ошибка при оформлении заказа: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
 }

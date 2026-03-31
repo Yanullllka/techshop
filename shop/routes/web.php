@@ -50,3 +50,6 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/profile/orders', [ProfileController::class, 'orders'])->name('profile.orders');
 });
+    Route::get('/check-auth', function () {
+    return response()->json(['authenticated' => Auth::check()]);
+});

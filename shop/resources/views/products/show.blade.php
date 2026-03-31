@@ -6,7 +6,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $product->name }} - TechShop</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body {
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -28,6 +27,8 @@
                     <a href="/products" class="text-gray-700 hover:text-purple-600 transition">Каталог</a>
                     <a href="/categories" class="text-gray-700 hover:text-purple-600 transition">Категории</a>
                     <a href="/orders" class="text-gray-700 hover:text-purple-600 transition">Заказы</a>
+                    <a href="/wishlist" class="text-gray-700 hover:text-purple-600 transition">Избранное</a>
+                    <a href="/profile" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition">Профиль</a>
                 </div>
                 
                 <div class="flex items-center space-x-4">
@@ -41,13 +42,17 @@
                         <a href="/login" class="text-gray-700 hover:text-purple-600 transition">Вход</a>
                         <a href="/register" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition">Регистрация</a>
                     @else
-                        <div class="relative">
-                            <button class="flex items-center space-x-2">
+                        <div class="flex items-center space-x-3">
+                            <div class="flex items-center space-x-2">
                                 <div class="w-8 h-8 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center text-white font-bold">
                                     {{ substr(Auth::user()->name, 0, 1) }}
                                 </div>
                                 <span class="text-gray-700">{{ Auth::user()->name }}</span>
-                            </button>
+                            </div>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="bg-red-500 text-white px-3 py-1.5 rounded-lg hover:bg-red-600 transition text-sm">Выйти</button>
+                            </form>
                         </div>
                     @endguest
                 </div>
@@ -78,11 +83,11 @@
                     
                     <div class="mb-6">
                         <div class="text-3xl font-bold text-purple-600">
-                            {{ number_format($product->price, 0, '', ' ') }} $
+                            ${{ number_format($product->price, 0, '', ' ') }}
                         </div>
                         @if($product->old_price)
                             <div class="text-sm text-gray-400 line-through mt-1">
-                                {{ number_format($product->old_price, 0, '', ' ') }} $
+                                ${{ number_format($product->old_price, 0, '', ' ') }}
                             </div>
                         @endif
                     </div>
@@ -123,14 +128,21 @@
                     </div>
                     
                     <div class="flex gap-4">
-                        <button id="add-to-cart" 
-                                data-product-id="{{ $product->id }}"
-                                class="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition">
-                            Добавить в корзину
-                        </button>
-                        <button class="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition">
-                            Избранное
-                        </button>
+                        @auth
+                            <button id="add-to-cart" data-product-id="{{ $product->id }}" class="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition">
+                                Добавить в корзину
+                            </button>
+                            <button id="add-to-favorite" data-product-id="{{ $product->id }}" class="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition">
+                                Избранное
+                            </button>
+                        @else
+                            <a href="{{ route('login') }}" class="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition text-center">
+                                Войдите, чтобы купить
+                            </a>
+                            <a href="{{ route('login') }}" class="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition text-center">
+                                Войдите, чтобы добавить
+                            </a>
+                        @endauth
                     </div>
                 </div>
             </div>
@@ -150,7 +162,7 @@
                         <h3 class="font-semibold">
                             <a href="/products/{{ $related->id }}" class="hover:text-purple-600">{{ $related->name }}</a>
                         </h3>
-                        <p class="text-purple-600 font-bold mt-2">{{ number_format($related->price, 0, '', ' ') }} $</p>
+                        <p class="text-purple-600 font-bold mt-2">${{ number_format($related->price, 0, '', ' ') }}</p>
                     </div>
                 @endforeach
             </div>
@@ -159,62 +171,31 @@
     </div>
 
     <script>
+        @auth
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+        
+        // Количество товара
         const quantityInput = document.getElementById('quantity');
         const decreaseBtn = document.getElementById('decrease-qty');
         const increaseBtn = document.getElementById('increase-qty');
         
-        decreaseBtn.addEventListener('click', () => {
-            let value = parseInt(quantityInput.value);
-            if (value > 1) {
-                quantityInput.value = value - 1;
-            }
-        });
-        
-        increaseBtn.addEventListener('click', () => {
-            let value = parseInt(quantityInput.value);
-            if (value < 99) {
-                quantityInput.value = value + 1;
-            }
-        });
-        
-        quantityInput.addEventListener('change', () => {
-            let value = parseInt(quantityInput.value);
-            if (isNaN(value) || value < 1) {
-                quantityInput.value = 1;
-            } else if (value > 99) {
-                quantityInput.value = 99;
-            }
-        });
-        
-        const addToCartBtn = document.getElementById('add-to-cart');
-        
-        addToCartBtn.addEventListener('click', function() {
-            const productId = this.dataset.productId;
-            const quantity = quantityInput.value;
-            
-            fetch('/cart/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify({
-                    product_id: productId,
-                    quantity: quantity
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showNotification(data.message, 'success');
-                    document.getElementById('cart-count').textContent = data.cart_count;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Ошибка при добавлении товара', 'error');
+        if (decreaseBtn && increaseBtn && quantityInput) {
+            decreaseBtn.addEventListener('click', () => {
+                let value = parseInt(quantityInput.value);
+                if (value > 1) quantityInput.value = value - 1;
             });
-        });
+            
+            increaseBtn.addEventListener('click', () => {
+                let value = parseInt(quantityInput.value);
+                if (value < 99) quantityInput.value = value + 1;
+            });
+            
+            quantityInput.addEventListener('change', () => {
+                let value = parseInt(quantityInput.value);
+                if (isNaN(value) || value < 1) quantityInput.value = 1;
+                else if (value > 99) quantityInput.value = 99;
+            });
+        }
         
         function showNotification(message, type) {
             const notification = document.createElement('div');
@@ -223,54 +204,69 @@
             }`;
             notification.textContent = message;
             document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
+            setTimeout(() => notification.remove(), 3000);
         }
-        const favoriteBtn = document.getElementById('add-to-favorite');
-    if (favoriteBtn) {
-        favoriteBtn.addEventListener('click', function() {
-            const productId = this.dataset.productId;
-            
-            fetch('/wishlist/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify({ product_id: productId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showNotification(data.message, 'success');
-                    // Меняем цвет кнопки
-                    favoriteBtn.classList.add('bg-red-500');
-                    favoriteBtn.classList.remove('bg-gray-100');
-                } else {
-                    showNotification(data.message, 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Ошибка при добавлении в избранное', 'error');
-            });
-        });
-    }
-    
-    function showNotification(message, type) {
-        const notification = document.createElement('div');
-        notification.className = `fixed top-20 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white ${
-            type === 'success' ? 'bg-green-500' : 'bg-red-500'
-        }`;
-        notification.textContent = message;
-        document.body.appendChild(notification);
         
-        setTimeout(() => {
-            notification.remove();
-        }, 3000);
-    }
+        const addToCartBtn = document.getElementById('add-to-cart');
+        if (addToCartBtn) {
+            addToCartBtn.addEventListener('click', function() {
+                const productId = this.dataset.productId;
+                const quantity = quantityInput.value;
+                
+                fetch('/cart/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({ product_id: productId, quantity: quantity })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification(data.message, 'success');
+                        document.getElementById('cart-count').textContent = data.cart_count;
+                    } else {
+                        showNotification(data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Ошибка при добавлении товара', 'error');
+                });
+            });
+        }
+        
+        const favoriteBtn = document.getElementById('add-to-favorite');
+        if (favoriteBtn) {
+            favoriteBtn.addEventListener('click', function() {
+                const productId = this.dataset.productId;
+                
+                fetch('/wishlist/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({ product_id: productId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification(data.message, 'success');
+                        favoriteBtn.classList.add('bg-red-500', 'text-white');
+                        favoriteBtn.classList.remove('bg-gray-100');
+                    } else {
+                        showNotification(data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Ошибка при добавлении в избранное', 'error');
+                });
+            });
+        }
+        @endauth
     </script>
 </body>
 </html>

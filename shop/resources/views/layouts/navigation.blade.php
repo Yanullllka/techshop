@@ -14,14 +14,12 @@
                 <a href="/products" class="text-gray-700 hover:text-purple-600 transition font-medium">
                     Каталог
                 </a>
-                <a href="/categories" class="text-gray-700 hover:text-purple-600 transition font-medium">
-                    Категории
-                </a>
+                
                 <a href="/orders" class="text-gray-700 hover:text-purple-600 transition font-medium">
                     Заказы
                 </a>
                 <a href="/profile" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition font-medium">
-                    👤 Профиль
+                    Профиль
                 </a>
             </div>
 

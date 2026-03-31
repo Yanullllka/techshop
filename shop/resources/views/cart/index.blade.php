@@ -264,6 +264,80 @@
                 }
             });
         }
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+    
+    function checkAuth() {
+        return new Promise((resolve) => {
+            fetch('/check-auth')
+                .then(response => response.json())
+                .then(data => resolve(data.authenticated))
+                .catch(() => resolve(false));
+        });
+    }
+    
+    function redirectToLogin() {
+        window.location.href = '/login';
+    }
+    
+    // Оформление заказа с проверкой авторизации
+    const checkoutBtn = document.getElementById('checkout-btn');
+    if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', async function() {
+            // Проверяем авторизацию
+            const isAuth = await checkAuth();
+            if (!isAuth) {
+                showNotification('Для оформления заказа нужно войти в аккаунт', 'error');
+                setTimeout(() => redirectToLogin(), 2000);
+                return;
+            }
+            
+            const originalText = this.innerHTML;
+            this.innerHTML = '⏳ Оформление...';
+            this.disabled = true;
+            
+            fetch('/cart/checkout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const modalMessage = document.getElementById('modal-message');
+                    modalMessage.textContent = data.message;
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                    
+                    const cartCount = document.getElementById('cart-count');
+                    if (cartCount) cartCount.textContent = '0';
+                } else {
+                    alert(data.message || 'Ошибка при оформлении заказа');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ошибка при оформлении заказа');
+            })
+            .finally(() => {
+                this.innerHTML = originalText;
+                this.disabled = false;
+            });
+        });
+    }
+    
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-20 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white ${
+            type === 'success' ? 'bg-green-500' : 'bg-red-500'
+        }`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
+    }
     </script>
 </body>
 </html>

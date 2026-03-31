@@ -24,7 +24,6 @@
                 </a>
                 
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="/products" class="text-gray-700 hover:text-purple-600 transition">Каталог</a>
                     <a href="/orders" class="text-gray-700 hover:text-purple-600 transition">Заказы</a>
                     <a href="/wishlist" class="text-gray-700 hover:text-purple-600 transition">Избранное</a>
                     <a href="/profile" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition font-medium">
