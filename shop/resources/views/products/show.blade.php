@@ -22,7 +22,6 @@
                 </a>
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="/products" class="text-gray-700 hover:text-purple-600 transition">Каталог</a>
-                    <a href="/categories" class="text-gray-700 hover:text-purple-600 transition">Категории</a>
                     <a href="/orders" class="text-gray-700 hover:text-purple-600 transition">Заказы</a>
                     <a href="/wishlist" class="text-gray-700 hover:text-purple-600 transition">Избранное</a>
                     <a href="/profile" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition">Профиль</a>
@@ -63,13 +62,15 @@
             </div>
         @endif
 
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div class="grid md:grid-cols-2 gap-8 p-8">
-                <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl h-96 flex items-center justify-center">
-                    <svg class="w-48 h-48 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                </div>
+        <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl h-96 flex items-center justify-center overflow-hidden">
+    @if($product->image)
+        <img src="{{ $product->image }}" alt="{{ $product->name }}" class="w-full h-full object-contain p-4">
+    @else
+        <svg class="w-48 h-48 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>
+    @endif
+</div>
                 <div>
                     <div class="mb-4">
                         <span class="text-sm text-gray-500">{{ $product->brand->name ?? 'Без бренда' }}</span>

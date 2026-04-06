@@ -6,6 +6,14 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Избранное - TechShop</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
 </head>
 <body class="bg-gradient-to-br from-purple-50 to-pink-50">
 
@@ -19,8 +27,8 @@
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="/products" class="text-gray-700 hover:text-purple-600 transition">Каталог</a>
                     <a href="/orders" class="text-gray-700 hover:text-purple-600 transition">Заказы</a>
-                    <a href="/wishlist" class="text-purple-600 font-semibold"> Избранное</a>
-                    <a href="/profile" class="text-gray-700 hover:text-purple-600 transition"> Профиль</a>
+                    <a href="/wishlist" class="text-purple-600 font-semibold">Избранное</a>
+                    <a href="/profile" class="text-gray-700 hover:text-purple-600 transition">Профиль</a>
                 </div>
                 <div class="flex items-center space-x-4">
                     <a href="/cart" class="relative">
@@ -48,7 +56,7 @@
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1 class="text-3xl font-bold mb-8 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-             Мои избранные товары
+            Мои избранные товары
         </h1>
 
         @if(session('success'))
@@ -61,10 +69,14 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 @foreach($wishlist as $item)
                     <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden hover:scale-105">
-                        <div class="relative h-48 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-                            <svg class="w-24 h-24 text-gray-400 group-hover:scale-110 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
+                        <div class="relative h-48 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center overflow-hidden">
+                            @if($item->image)
+                                <img src="{{ $item->image }}" alt="{{ $item->name }}" class="w-full h-full object-cover">
+                            @else
+                                <svg class="w-24 h-24 text-gray-400 group-hover:scale-110 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            @endif
                             <button class="remove-favorite absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition opacity-0 group-hover:opacity-100" data-id="{{ $item->id }}">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -100,7 +112,7 @@
             </div>
         @else
             <div class="bg-white rounded-2xl shadow-xl p-12 text-center">
-                <div class="text-6xl mb-4"></div>
+                <div class="text-6xl mb-4">❤️</div>
                 <h2 class="text-2xl font-bold text-gray-800 mb-2">Избранное пусто</h2>
                 <p class="text-gray-600 mb-6">Добавляйте товары в избранное, чтобы не потерять их</p>
                 <a href="/products" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg hover:shadow-lg transition">
@@ -113,7 +125,6 @@
     <script>
     const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
     
-    // Удаление из избранного
     document.querySelectorAll('.remove-favorite').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
@@ -144,13 +155,11 @@
                 .then(data => {
                     if (data.success) {
                         showNotification(data.message, 'success');
-                        // Удаляем карточку из DOM
                         if (card) {
                             card.remove();
                         } else {
                             location.reload();
                         }
-                        // Проверяем, остались ли товары
                         const remainingItems = document.querySelectorAll('.remove-favorite').length;
                         if (remainingItems === 0) {
                             location.reload();
@@ -179,11 +188,8 @@
         }`;
         notification.textContent = message;
         document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.remove();
-        }, 3000);
+        setTimeout(() => notification.remove(), 3000);
     }
-</script>
+    </script>
 </body>
 </html>

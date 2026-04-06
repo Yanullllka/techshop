@@ -19,22 +19,18 @@ class ProductController extends Controller
     {
         $query = Product::with('brand');
         
-        // Поиск по названию
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
         
-        // Фильтр по бренду
         if ($request->filled('brand')) {
             $query->whereIn('brand_id', $request->brand);
         }
         
-        // Фильтр по категории
         if ($request->filled('category')) {
             $query->where('category_id', $request->category);
         }
         
-        // Фильтр по цене
         if ($request->filled('price_min')) {
             $query->where('price', '>=', $request->price_min);
         }
@@ -42,7 +38,6 @@ class ProductController extends Controller
             $query->where('price', '<=', $request->price_max);
         }
         
-        // Сортировка
         switch ($request->sort) {
             case 'price_asc':
                 $query->orderBy('price', 'asc');
@@ -71,7 +66,6 @@ class ProductController extends Controller
         return view('products.index', compact('products', 'brands', 'categories'));
     }
 
-    // ТОЛЬКО ОДИН МЕТОД show()
     public function show($id)
     {
         $product = Product::with(['brand', 'reviews.user'])->findOrFail($id);

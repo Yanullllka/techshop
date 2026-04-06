@@ -44,7 +44,7 @@
                             @foreach($order->items as $item)
                                 <div class="flex justify-between items-center py-3 border-b border-gray-100 last:border-0">
                                     <div class="flex-1">
-                                        <p class="font-medium text-gray-800">{{ $item->product->name }}</p>
+                                        <p class="font-medium text-gray-800">{{ $item->product->name ?? 'Товар удален' }}</p>
                                         <p class="text-sm text-gray-500">Количество: {{ $item->quantity }}</p>
                                     </div>
                                     <div class="text-right">

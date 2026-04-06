@@ -25,11 +25,9 @@
                 
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="/products" class="text-gray-700 hover:text-purple-600 transition">Каталог</a>
-                    <a href="/categories" class="text-gray-700 hover:text-purple-600 transition">Категории</a>
                     <a href="/orders" class="text-gray-700 hover:text-purple-600 transition">Заказы</a>
-                    <a href="/profile" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition font-medium">
-                        Профиль
-                    </a>
+                    <a href="/wishlist" class="text-gray-700 hover:text-purple-600 transition">Избранное</a>
+                    <a href="/profile" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition">Профиль</a>
                 </div>
                 
                 <div class="flex items-center space-x-4">
@@ -37,19 +35,23 @@
                         <svg class="w-6 h-6 text-gray-700 hover:text-purple-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                         </svg>
-                        <span class="absolute -top-2 -right-2 bg-purple-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                        <span id="cart-count" class="absolute -top-2 -right-2 bg-purple-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
                     </a>
                     @guest
                         <a href="/login" class="text-gray-700 hover:text-purple-600 transition">Вход</a>
                         <a href="/register" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition">Регистрация</a>
                     @else
-                        <div class="relative">
-                            <button class="flex items-center space-x-2">
+                        <div class="flex items-center space-x-3">
+                            <div class="flex items-center space-x-2">
                                 <div class="w-8 h-8 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center text-white font-bold">
                                     {{ substr(Auth::user()->name, 0, 1) }}
                                 </div>
                                 <span class="text-gray-700">{{ Auth::user()->name }}</span>
-                            </button>
+                            </div>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="bg-red-500 text-white px-3 py-1.5 rounded-lg hover:bg-red-600 transition text-sm">Выйти</button>
+                            </form>
                         </div>
                     @endguest
                 </div>
@@ -78,10 +80,14 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 @forelse($products->take(4) as $product)
                     <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden hover:scale-105">
-                        <div class="h-48 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-                            <svg class="w-24 h-24 text-gray-400 group-hover:scale-110 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
+                        <div class="h-48 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center overflow-hidden">
+                            @if($product->image)
+                                <img src="{{ $product->image }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
+                            @else
+                                <svg class="w-24 h-24 text-gray-400 group-hover:scale-110 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            @endif
                         </div>
                         <div class="p-4">
                             <h3 class="font-bold text-lg group-hover:text-purple-600 transition">
@@ -89,7 +95,7 @@
                             </h3>
                             <p class="text-gray-500 text-sm mb-3">{{ Str::limit($product->description ?? 'Описание товара', 50) }}</p>
                             <div class="flex justify-between items-center">
-                                <span class="text-2xl font-bold text-purple-600">{{ number_format($product->price, 0, '', ' ') }} $</span>
+                                <span class="text-2xl font-bold text-purple-600">${{ number_format($product->price, 0, '', ' ') }}</span>
                                 <a href="/products/{{ $product->id }}" class="bg-purple-600 text-white p-2 rounded-lg hover:bg-purple-700 transition">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
@@ -117,10 +123,14 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 @foreach($products->skip(4)->take(4) as $product)
                     <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden hover:scale-105">
-                        <div class="h-48 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-                            <svg class="w-24 h-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                            </svg>
+                        <div class="h-48 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center overflow-hidden">
+                            @if($product->image)
+                                <img src="{{ $product->image }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
+                            @else
+                                <svg class="w-24 h-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                </svg>
+                            @endif
                         </div>
                         <div class="p-4">
                             <h3 class="font-bold text-lg hover:text-purple-600 transition">
@@ -128,7 +138,7 @@
                             </h3>
                             <p class="text-gray-500 text-sm mb-3">{{ Str::limit($product->description ?? 'Описание товара', 50) }}</p>
                             <div class="flex justify-between items-center">
-                                <span class="text-2xl font-bold text-purple-600">{{ number_format($product->price, 0, '', ' ') }} $</span>
+                                <span class="text-2xl font-bold text-purple-600">${{ number_format($product->price, 0, '', ' ') }}</span>
                                 <a href="/products/{{ $product->id }}" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition text-sm">
                                     Купить
                                 </a>
@@ -167,8 +177,8 @@
                 <div>
                     <h4 class="font-semibold mb-4">Контакты</h4>
                     <ul class="space-y-2 text-gray-400">
-                        <li> +375 (33) 340-90-73</li>
-                        <li> yana@gmail.com</li>
+                        <li>+375 (33) 340-90-73</li>
+                        <li>yana@gmail.com</li>
                     </ul>
                 </div>
             </div>
